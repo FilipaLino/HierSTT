@@ -1,6 +1,6 @@
 # HierSTT: Hierarchical Spatio-Temporal Transformer for Coherent Emergency Department Forecasting
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/13dc998e-8f21-40d5-b591-2d16ef30aed6"  width="50%" height="50%">
+  <img src="https://github.com/user-attachments/assets/13dc998e-8f21-40d5-b591-2d16ef30aed6"  width="70%" height="70%">
 </p>
 
 Official implementation of HierSTT, an end-to-end hierarchical forecasting framework that jointly predicts emergency department demand at hospital, regional, and national levels. The model combines a Temporal Fusion Transformer at the national level with spatio-temporal Transformer encoder-decoder modules at the regional and hospital levels. A coherence-aware loss encourages consistency between forecasts across the hierarchy.
