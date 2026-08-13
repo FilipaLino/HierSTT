@@ -47,7 +47,7 @@ python scripts/run.py --test --model tft_st --data data/dataset.csv --save-mat
 ```
 
 That runs the complete pipeline — level construction, windowing, training,
-coherence metrics. Swap in your own CSV (schema in [`docs/DATA.md`](docs/DATA.md)) to get meaningful numbers.
+coherence metrics. Swap in your own CSV (schema in [`data/DATA.md`](data/DATA.md)) to get meaningful numbers.
 
 Useful flags: `--alpha` (coherence weight, default `0.3`), `--epochs`,
 `--batch`, `--patience`, `--seed`, `--checkpoint-dir`, `--history` (writes the
