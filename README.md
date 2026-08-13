@@ -1,13 +1,12 @@
 # HierSTT
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/13dc998e-8f21-40d5-b591-2d16ef30aed6"  width="70%" height="70%">
-</p>
-
 **Hierarchical Spatio-Temporal Transformer for Coherent Emergency Department Forecasting**
 Filipa Lino, Bárbara Tavares, Carlos Santiago, Cláudia Soares, Manuel Marques
 · ECML-PKDD 2026, SoGood Workshop · [arXiv:2607.27106](https://arxiv.org/abs/2607.27106)
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/13dc998e-8f21-40d5-b591-2d16ef30aed6"  width="70%" height="70%">
+</p>
 ---
 
 Emergency Department planning needs forecasts at several levels at once:
