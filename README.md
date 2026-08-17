@@ -39,62 +39,63 @@ git clone https://github.com/FilipaLino/HierSTT.git
 cd HierSTT
 pip install -r requirements.txt
 
-# Train HierSTT end to end
-python scripts/run.py --train --data data/dataset.csv 
+# Train HierSTT end to end vwith the published configuration
+python scripts/run.py --train --data /path/to/dataset.csv --seed 42 --alpha 0.3
 
-# evaluate a saved checkpoint, exporting predictions for further analysis
-python scripts/run.py --test --model tft_st --data data/dataset.csv --save-mat
+# evaluate a checkpoint on the held-out test split
+python scripts/run.py --test --data /path/to/dataset.csv --checkpoint checkpoint/model_seed_42_alpha_0_3.pth
 ```
 
-That runs the complete pipeline — level construction, windowing, training,
-coherence metrics. Swap in your own CSV (schema in [`data/DATA.md`](data/DATA.md)) to get meaningful numbers.
+Both modes print per-level MAE, RMSE and WAPE, plus HAgE for the three
+aggregation transitions. The dataset is **not published at this time** while its redistribution terms are
+being confirmed. It was assembled from public Portuguese sources; every source
+is listed in [`data/DATA.md`](data/DATA.md), together with the full column schema,
+so an equivalent table can be rebuilt from them. If and when redistribution is
+cleared, a download link will be added here.
 
-Useful flags: `--alpha` (coherence weight, default `0.3`), `--epochs`,
-`--batch`, `--patience`, `--seed`, `--checkpoint-dir`, `--history` (writes the
-training curve as JSON). Run `--help` for the rest.
+All 36 checkpoints from the paper — **seeds `1, 7, 21, 42, 123, 2026` × α values
+`0.0, 0.3, 0.5, 0.7, 0.99, 0.999`** — are on Google Drive:
 
-### Reproduce the seed × α grid
+**➜ [Download the checkpoints](PASTE_YOUR_GOOGLE_DRIVE_FOLDER_LINK_HERE)**
 
-The coherence-weight ablation and the mean ± std results come from training
-across 6 seeds and 6 values of α:
+### Arguments
 
-```bash
-python scripts/sweep.py --data data/dataset.csv
-```
+| Flag | Default | Meaning |
+|---|---|---|
+| `--train` / `--test` | — | Mode; one is required |
+| `--data` | `data/dataset.csv` | Path to the raw activity CSV |
+| `--alpha` | `0.3` | Weight of the coherence term in the loss |
+| `--seed` | `42` | Random seed; also names the checkpoint |
+| `--batch` | `32` | Batch size |
+| `--epochs` | `200` | Maximum epochs |
+| `--lr` | `1e-3` | AdamW learning rate |
+| `--max-lr` | `3e-4` | OneCycleLR peak |
+| `--weight-decay` | `1e-4` | AdamW weight decay |
+| `--patience` | `50` | Early-stopping patience on validation loss |
+| `--checkpoint` | seed/α-derived | Checkpoint path for `--test` |
 
-One row of test metrics per run is appended to
-`results/seed_alpha_results.csv`, so an interrupted sweep resumes with
-`--skip-existing`. A summary of mean ± std per α is printed at the end.
+Training writes the best-validation checkpoint to
+`checkpoint/model_seed_{seed}_alpha_{alpha}.pth` and reloads it before the test
+evaluation.
 
-```bash
-# a single cell of the grid
-python scripts/sweep.py --data data/dataset.csv --seeds 42 --alphas 0.3
-```
 
 ## Repository layout
 
 ```
-hierstt/
-├── hierarchy.py          Hierarchy shape (81 hospitals / 5 regions / 1 national)
-├── pipeline.py           Raw CSV → levels → windows → scaled tensors → loaders
-├── engine.py             Training and evaluation loops
-├── losses.py             Coherence-aware objective
-├── metrics.py            WAPE, HAgE, aggregation helpers
-├── data/
-│   ├── prepare_data.py   Builds the three hierarchy levels
-│   ├── sequences.py      Chronological splits, sliding windows, Datasets
-│   └── scaling.py        All scaler fitting, isolated for auditability
-└── models/
-    ├── tft.py            Temporal Fusion Transformer (national level)
-    ├── transformer.py    Transformer blocks
-    ├── spatio_temporal.py  HierSTT  ← the paper model
-    └── baselines.py      Hierarchical LSTM / Transformer / CNN ablations
-
-scripts/
-├── run.py                Train / evaluate one configuration
-├── sweep.py              Seed × α grid
-├── make_synthetic_data.py
-└── check_no_data.py      Commit guard
+run.py                        Train / evaluate entry point
+common/
+├── arguments.py              CLI definition
+├── hierarchical_model.py     HierSTT — top-down conditioning across levels
+├── st_transformer.py         Spatio-temporal encoder / decoder blocks
+├── tft.py                    Temporal Fusion Transformer (national level)
+├── loss.py                   Coherence-aware objective
+└── metrics.py                WAPE, HAgE, aggregation helpers
+data/
+├── prepare_data.py           Builds the three hierarchy levels
+├── sequences.py              Chronological splits, sliding windows, Datasets
+└── DATA.md                   Dataset schema and sources
+checkpoint/
+└── MODELS.md                 Pretrained checkpoint reference
 ```
 
 ## Requirements
