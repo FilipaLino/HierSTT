@@ -1,8 +1,16 @@
 # Data
 
-**No dataset is distributed with this repository.** The Portuguese ED activity
-data used in the paper was assembled from public sources but is not
-redistributed here. This document describes the schema the code expects.
+**The dataset used in this work is not currently published.**
+
+It was assembled from public Portuguese sources, but redistribution of the
+combined table has not yet been cleared. This document describes the schema the code expects.
+
+If redistribution is cleared later, a download link will be added here and to the
+[README](../README.md).
+
+The **pretrained weights are released** — see [`MODELS.md`](../checkpoint/MODELS.md) — so the
+published models can be inspected and loaded without the data. Running
+`--test`, however, needs a schema-compatible CSV to build the test windows from.
 
 ---
 
@@ -31,10 +39,10 @@ One CSV, one row per **(hospital, day)**. Pass its path with `--data`.
 | `tmpc` | float | regional | Temperature (°C) |
 | `mortality` | float | national | Daily mortality count |
 
-Derived automatically in `hierstt/data/prepare_data.py`:
+Derived automatically in `data/prepare_data.py`:
 
-- `month`, `weekday` — from `time`
-- `open` — `1` if `M1 != 0`, else `0`. Some EDs genuinely close on some days;
+- `month`, `weekday` —  recomputed from `time`;
+- `open` — `1` if `M1 != 0`, else `0`. Some EDs genuinely close on certain days;
   this flag is a **future-known** decoder covariate, which is what lets the model
   predict near-zero demand on closure days.
 
@@ -66,29 +74,30 @@ The published hierarchy is 81 hospitals in 5 RHAs. Region indices follow the
 | 3 | Lisboa e Vale do Tejo | 21 |
 | 4 | Norte | 27 |
 
-`hierstt/hierarchy.py` infers this from your data at load time
-(`Hierarchy.from_dataframe`), so a different number of hospitals or regions works
-without code changes.
+If your data has a different number of hospitals or regions, update
+`region_to_hospitals` in both files — the counts must sum to the number of
+hospital series, and hospitals must be ordered by region.
 
 ## Preprocessing and splits
 
-- Rows before `--start-date` (default `2021-08-01`) are dropped, to exclude the
-  atypical COVID-19 demand regime.
+- Rows before **2021-08-01** are dropped, excluding the atypical COVID-19 demand
+  regime. Raw coverage runs 2021-01-01 to 2024-04-20.
 - Missing values at specific timestamps are filled by linear interpolation
   **before** the CSV reaches this code.
-- Splits are strictly chronological with no shuffling: train up to
-  `--train-end` (default `2023-07-15`), validation up to `--val-end` (default
-  `2023-12-02`), test thereafter. On the published data that is 713 / 140 / 140
-  days, yielding 644 / 71 / 71 sliding-window samples.
-- Targets are `log1p`-transformed; features and targets are scaled with
-  `RobustScaler` **fitted on the training split only**
-  (`hierstt/data/scaling.py`). Metrics are computed in count space after
-  inverting every transform.
+- Windows: **42-day encoder**, **28-day horizon**, sliding with stride 1. For a
+  split of *N* consecutive days this yields `N − 42 − 28 + 1` samples.
+- Splits are strictly chronological, no shuffling:
+
+| Split | Range | Days | Samples |
+|---|---|---|---|
+| Train | 2021-08-01 → 2023-07-15 | 713 | 644 |
+| Validation | 2023-07-16 → 2023-12-02 | 140 | 71 |
+| Test | 2023-12-03 → 2024-04-20 | 140 | 71 |
 
 > **Implementation note.** `prepare_data.py` converts `time` to integer category
 > codes (a 0-based day index), and `create_data_splits` compares those codes
-> against day offsets from `--start-date`. The two are coupled: if you change how
-> `time` is encoded, update the split thresholds to match.
+> against day offsets from the start date (713 and 853). The two are coupled: if
+> you change how `time` is encoded, update the split thresholds to match.
 
 ## Original sources
 
@@ -106,11 +115,3 @@ result is what is not redistributed here.
 The AQI is computed following the US EPA technical assistance document for
 reporting the daily Air Quality Index.
 
-## If you are adding your own data
-
-1. Put the CSV anywhere; `data/` is gitignored so files there cannot be
-   committed by accident.
-2. Run `python scripts/check_no_data.py --install-hook` once. It blocks commits
-   containing data-like files, including via `git add -f`.
-3. Sanity-check the schema by running the pipeline for one epoch:
-   `python scripts/run.py --train --data your.csv --epochs 1`.
