@@ -56,7 +56,7 @@ cleared, a download link will be added here.
 All 36 checkpoints from the paper — **seeds `1, 7, 21, 42, 123, 2026` × α values
 `0.0, 0.3, 0.5, 0.7, 0.99, 0.999`** — are on Google Drive:
 
-**➜ [Download the checkpoints](PASTE_YOUR_GOOGLE_DRIVE_FOLDER_LINK_HERE)**
+**➜ [Download the checkpoints](https://drive.google.com/file/d/13Jrpk123862GnNaMt3URGU3mWysRmkwF/view?usp=sharing)**
 
 ### Arguments
 
