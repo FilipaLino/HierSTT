@@ -2,7 +2,7 @@
 
 All checkpoints from the paper are released on Google Drive.
 
-**➜ [Download folder](PASTE_YOUR_GOOGLE_DRIVE_FOLDER_LINK_HERE)**
+**➜ [Download folder](https://drive.google.com/file/d/13Jrpk123862GnNaMt3URGU3mWysRmkwF/view?usp=sharing)**
 
 36 checkpoints: **6 seeds × 6 coherence weights**, one per cell of the α
 ablation. Each is ≈18 MB (≈4.4 M parameters); the full set is ≈640 MB.
